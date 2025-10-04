@@ -1,0 +1,65 @@
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+ext {
+    minSdk = 21
+    targetSdk = 35
+    versionCode = 1
+    compileSdk = 35
+    versionName = "1.0.0"
+
+    // Add a flutter extension for plugins that reference flutter.* properties.
+    flutter = [
+            compileSdkVersion: compileSdk,
+            minSdkVersion  : minSdk,
+            targetSdkVersion: targetSdk,
+            versionCode    : versionCode,
+            versionName    : versionName,
+            ndkVersion     : "26.1.10909125"
+    ]
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    subprojects {
+        afterEvaluate { project ->
+            if (project.hasProperty('android')) {
+                project.android {
+                    if (namespace == null) {
+                        namespace project.group
+                    }
+                    // Set compileSdk for subprojects that don't define it
+                    if (compileSdk == null) {
+                        compileSdk = rootProject.ext.compileSdk
+                    }
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
