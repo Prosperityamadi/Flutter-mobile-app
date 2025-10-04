@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 25),
                     // Hot picks section
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
