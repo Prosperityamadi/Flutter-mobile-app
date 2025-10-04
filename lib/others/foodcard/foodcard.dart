@@ -8,7 +8,8 @@ class FoodCard extends StatelessWidget {
 
   FoodCard({
     required this.item,
-    required this.onAdd,});
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +32,26 @@ class FoodCard extends StatelessWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-              child: Image.asset(
-                item.imagePath,
+              child: Image(
+                image: AssetImage(item.imagePath),
                 width: double.infinity,
                 fit: BoxFit.cover,
-                package: 'spar',
+                errorBuilder: (context, error, stackTrace) {
+                  print('Error loading image: ${item.imagePath}');
+                  print('Error: $error');
+                  return Container(
+                    color: Colors.grey[300],
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.broken_image, size: 50, color: Colors.grey[600]),
+                          Text('${item.imagePath}', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -61,7 +77,7 @@ class FoodCard extends StatelessWidget {
                   onTap: item.onOptionPressed,
                   child: Container(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Color(0xFFC42348),
                       borderRadius: BorderRadius.circular(20),
