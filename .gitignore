@@ -10,12 +10,12 @@ build/
 .vscode/
 *.iml
 
-# Android specific
+# Android
 android/.gradle/
 android/app/build/
 android/local.properties
 
-# iOS specific
+# iOS
 ios/Flutter/Flutter.framework
 ios/Pods/
 ios/.symlinks/
