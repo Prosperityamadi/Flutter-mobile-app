@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -14,6 +15,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String location = "Amasaman, Sonitra";
+
   // imagelist for auto scrollable images on homepage
   final List<String> imageList = [
     'assets/images/jollof_rice.jpg',
@@ -89,6 +92,172 @@ class _HomePageState extends State<HomePage> {
         scrolledUnderElevation: 0.0,
         backgroundColor: Colors.white,
         toolbarHeight: 65,
+        title: Container(
+          padding: EdgeInsets.only(left: 10, right: 10),
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: Color(0xFFE0E0E0),
+            ),
+          ),
+          //Location
+          child: TextButton(
+            //onPressed function
+            onPressed: () {
+              showModalBottomSheet<void>(
+                useSafeArea: false,
+                isDismissible: false,
+                enableDrag: true,
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30)),
+                      color: Colors.white,
+                    ),
+                    height: 400,
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Column(
+                          children: [
+                            // first row of the bottom modal
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Color(0xFFE0E0E0),
+                                  ),
+                                ),
+                              ),
+                              padding: EdgeInsets.only(
+                                top: 15,
+                                bottom: 15,
+                                right: 30,
+                                left: 30,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedSent,
+                                        color: Color(0xFFC42348),
+                                        strokeWidth: 3,
+                                      ),
+                                      SizedBox(
+                                        width: 8,
+                                      ),
+                                      Text(
+                                        "Select Location",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TextButton(
+                                    child: Text(
+                                      'Close',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFC42348),
+                                      ),
+                                    ),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //location suggestion can be added here
+                            SizedBox(
+                              height: 200,
+                            ),
+                            //last row of the bottom modal that redirect to a full location page
+                            Container(
+                              padding: EdgeInsets.only(top: 8, bottom: 8),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFC42348),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              margin: EdgeInsets.all(12),
+                              child: TextButton(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        HugeIcon(
+                                          icon:
+                                              HugeIcons.strokeRoundedLocation03,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        Text(
+                                          "Change delivery location",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    HugeIcon(
+                                      icon: HugeIcons
+                                          .strokeRoundedArrowRightDouble,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () {},
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      color: Color(0xFFC42348),
+                      size: 25,
+                    ),
+                    SizedBox(width: 8,),
+                    Text(
+                      'Amasaman, Sonitra',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                HugeIcon(icon: HugeIcons.strokeRoundedArrowDown01)
+              ],
+            ),
+          ),
+        ),
+        //shopping Cart
         actions: [
           IconButton(
             onPressed: () {},
@@ -201,16 +370,15 @@ class _HomePageState extends State<HomePage> {
                     GridView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       physics: NeverScrollableScrollPhysics(),
-                      // Important for nesting in a ListView
                       shrinkWrap: true,
                       // Important for nesting in a ListView
                       itemCount: hotPicksItems.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        crossAxisSpacing: 16, // Horizontal space
-                        mainAxisSpacing: 16, // Vertical space
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
                         childAspectRatio:
-                        0.75, // Adjust this ratio to get the height you want
+                            0.75, // Adjust this ratio to get the height you want
                       ),
                       itemBuilder: (BuildContext context, int index) {
                         // Get the current item from your list
@@ -237,7 +405,7 @@ class _HomePageState extends State<HomePage> {
 
 //homepage horizontal icons that is also used in the search page
 class MyHorizontalIconContainer extends StatelessWidget {
-   MyHorizontalIconContainer({
+  MyHorizontalIconContainer({
     super.key,
   });
 
