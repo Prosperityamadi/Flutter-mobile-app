@@ -1,11 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:go_router/go_router.dart';
 import 'package:spar/others/foodcard/food_items.dart';
 import 'package:spar/others/foodcard/foodcard.dart';
+import 'package:spar/pages/Navigation/location_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -221,7 +220,13 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ],
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LocationPage()),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -242,17 +247,20 @@ class _HomePageState extends State<HomePage> {
                       color: Color(0xFFC42348),
                       size: 25,
                     ),
-                    SizedBox(width: 8,),
+                    SizedBox(
+                      width: 8,
+                    ),
                     Text(
                       'Amasaman, Sonitra',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: Colors.black
                       ),
                     ),
                   ],
                 ),
-                HugeIcon(icon: HugeIcons.strokeRoundedArrowDown01)
+                HugeIcon(icon: HugeIcons.strokeRoundedArrowDown01, color: Colors.black,)
               ],
             ),
           ),
@@ -403,11 +411,25 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-//homepage horizontal icons that is also used in the search page
-class MyHorizontalIconContainer extends StatelessWidget {
-  MyHorizontalIconContainer({
-    super.key,
-  });
+class MyHorizontalIconContainer extends StatefulWidget {
+  const MyHorizontalIconContainer({super.key});
+
+  @override
+  State<MyHorizontalIconContainer> createState() => _MyHorizontalIconContainerState();
+}
+
+class _MyHorizontalIconContainerState extends State<MyHorizontalIconContainer> {
+  int selectedIndex = -1;
+
+  void _handleSelection(int index) {
+    setState(() {
+      if (selectedIndex == index) {
+        selectedIndex = -1;
+      } else {
+        selectedIndex = index;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -419,21 +441,36 @@ class MyHorizontalIconContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             MyHorizontalIcons(
-                onPressed: () {},
-                icon: HugeIcons.strokeRoundedPizza02,
-                label: 'Pizza'),
+              onPressed: () {
+                return _handleSelection(0);
+              },
+              icon: HugeIcons.strokeRoundedPizza02,
+              label: 'Pizza',
+              isSelected: selectedIndex == 0,            ),
             MyHorizontalIcons(
-                onPressed: () {},
-                icon: HugeIcons.strokeRoundedRiceBowl01,
-                label: 'Food'),
+              onPressed: () {
+                return _handleSelection(1);
+              },
+              icon: HugeIcons.strokeRoundedRiceBowl01,
+              label: 'Food',
+              isSelected: selectedIndex == 1,
+            ),
             MyHorizontalIcons(
-                onPressed: () {},
-                icon: HugeIcons.strokeRoundedIceCream01,
-                label: 'Desserts'),
+              onPressed: () {
+                return _handleSelection(2);
+              },
+              icon: HugeIcons.strokeRoundedIceCream01,
+              label: 'Desserts',
+              isSelected: selectedIndex == 2,
+            ),
             MyHorizontalIcons(
-                onPressed: () {},
-                icon: HugeIcons.strokeRoundedMilkBottle,
-                label: 'Drinks'),
+              onPressed: () {
+                return _handleSelection(3);
+              },
+              icon: HugeIcons.strokeRoundedMilkBottle,
+              label: 'Drinks',
+              isSelected: selectedIndex == 3,
+            ),
           ],
         ),
       ),
@@ -441,17 +478,20 @@ class MyHorizontalIconContainer extends StatelessWidget {
   }
 }
 
-//homepage horizontal icons
+// ✅ your MyHorizontalIcons class
 class MyHorizontalIcons extends StatelessWidget {
   final dynamic icon;
   final String label;
   final VoidCallback? onPressed;
+  final bool isSelected;
 
-  MyHorizontalIcons(
-      {super.key,
-      required this.icon,
-      required this.label,
-      required this.onPressed});
+  const MyHorizontalIcons({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -462,7 +502,7 @@ class MyHorizontalIcons extends StatelessWidget {
           icon: HugeIcon(
             icon: icon,
             size: 45,
-            color: Color(0xFF8195A6),
+            color: isSelected ? Color(0xFFC42348) : const Color(0xFF8195A6),
           ),
         ),
         Text(
@@ -470,8 +510,8 @@ class MyHorizontalIcons extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontStyle: FontStyle.normal,
             fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF8195A6),
+            color: isSelected ? Color(0xFFC42348) :  Color(0xFF8195A6),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
       ],
