@@ -4,8 +4,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:spar/pages/Navigation/home_page.dart';
 
 class SearchPage extends StatefulWidget {
-
-  const SearchPage({super.key});
+  SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -13,7 +12,8 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   //Controller for search input
-  static TextEditingController searchController = TextEditingController();
+  static TextEditingController searchMealController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     Expanded(
                       child: TextField(
-                        controller: searchController,
+                        controller: searchMealController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           hintText: "Search meals",
@@ -90,12 +90,61 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   Container(
                     color: Colors.white,
-                    child: Text(
-                      "Cancel",
-                      style: GoogleFonts.poppins(
-                          fontSize: 50,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFC42348)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 15.0, right: 15),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Search Results',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 25,
+                                ),
+                              ),
+                              Container(
+                                height: 20,
+                                width: 20,
+                                alignment: Alignment.center,
+                                color: Color(0xFFF9E9ED),
+                                child: Text(
+                                  '0',
+                                  style: GoogleFonts.poppins(
+                                    color: Color(0xFFC42348),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Column(
+                            children: [
+                              Image(
+                                image: AssetImage(
+                                    'assets/images/search_result.png'),
+                                width: 126,
+                                height: 85,
+                              ),
+                              Text(
+                                'No results found',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 ],

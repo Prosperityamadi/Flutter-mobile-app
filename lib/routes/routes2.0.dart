@@ -12,7 +12,6 @@ import 'package:spar/pages/Navigation/main_navigation.dart';
         path: '/splashScreen',
         builder: (context, state) => const SplashScreen(),
       ),
-      // This route shows your LoginPage. That's it.
       GoRoute(
         path: '/loginPage',
         builder: (context, state) => const LoginPage(),
