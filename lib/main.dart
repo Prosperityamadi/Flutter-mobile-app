@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:spar/pages/Navigation/home_page.dart';
 import 'package:spar/routes/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:spar/routes/routes2.0.dart';
@@ -21,12 +20,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      // This sets up a hybrid navigation system.
-      // 1. `MaterialApp.router` with `AppRouter` (GoRouter) manages the primary app navigation
-      // (e.g., handling stack resets, deep linking, and the main app shell).
-      // 2. The nested `MaterialApp` in the `builder` is a compatibility layer. Its sole purpose
-      // is to intercept and handle legacy Navigator 1.0 `pushNamed` calls via the old `RoutesManager`,
-      // allowing the self-contained authentication flow (Login -> OTP) to function.
     return MaterialApp.router(
       title: 'Dennis Pizza',
       routerConfig: router,
@@ -39,5 +32,6 @@ class MyApp extends StatelessWidget {
         );
       },
     );
+
   }
 }
