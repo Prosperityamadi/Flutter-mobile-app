@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String location = "Amasaman, Sonitra";
 
-  // imagelist for auto scrollable images on homepage
+  // image list for auto scrollable images on homepage
   final List<String> imageList = [
     'assets/images/jollof_rice.jpg',
     'assets/images/pizza_homepage.jpg',
