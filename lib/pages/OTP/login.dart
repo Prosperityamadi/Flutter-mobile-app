@@ -256,7 +256,7 @@ class PhoneNumber extends StatelessWidget {
                       ? () {
                           // Navigate to OTP verification page with phone number
                           final phoneNumber = phoneController.text;
-                          context.go('/otpPage/$phoneNumber');
+                          context.push('/otpPage/$phoneNumber');
                           // A print statement to check the phone number
                           print("Phone number: ${phoneController.text}");
                         }

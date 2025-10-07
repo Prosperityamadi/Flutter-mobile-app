@@ -4,10 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:spar/pages/OTP/modals.dart';
 
-// OTP Verification Page
+//displays a UI for entering the 6-digit OTP.
 class OtpPage extends StatefulWidget {
+  //The phone number to which the OTP was sent.
   final String phoneNumber;
-
   OtpPage({required this.phoneNumber});
 
   @override
@@ -18,23 +18,24 @@ class _OtpPageState extends State<OtpPage> {
   // valid OTP for now (replace with backend validation later)
   String validPin = "123456";
 
-  // Stores the currently entered OTP
+  // Stores the OTP entered by the user.
   String enteredPin = "";
 
-  // Tracks whether the OTP input is complete (6 digits entered)
+  // Tracks whether the user has entered all 6 digits of the OTP.
   bool isComplete = false;
 
-  // Key to manage form validation
+  // A global key for the form to handle validation.
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  /// Shows the success modal and navigates to home page after closing
+  /// Displays a success modal when the OTP is correct and navigates to the
+  /// home page after a short delay.
   void _showSuccessModal() {
     SuccessModal.show(
       context,
       title: "Success",
       autoCloseDuration: Duration(seconds: 2),
       onClose: () {
-        // Navigate to home page once the modal is dismissed
+        // Navigates to the home page after the modal is closed.
         print("OTP verification successful, navigating to home page");
         context.go("/home");
       },
@@ -44,7 +45,7 @@ class _OtpPageState extends State<OtpPage> {
   @override
   void initState() {
     super.initState();
-    // Any OTP setup logic can go here later if needed
+    // Future OTP setup logic can be added here if needed.
   }
 
   @override
@@ -59,7 +60,7 @@ class _OtpPageState extends State<OtpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Instructions
+              // Displays instructions to the user.
               Text(
                 "Enter the OTP sent to ",
                 style: GoogleFonts.poppins(
@@ -69,9 +70,9 @@ class _OtpPageState extends State<OtpPage> {
                   color: Colors.black,
                 ),
               ),
-              // Display phone number with underline + custom color
+              // Displays the phone number with custom styling.
               Text(
-                "${widget.phoneNumber}",
+                "\${widget.phoneNumber}",
                 style: GoogleFonts.poppins(
                   fontStyle: FontStyle.normal,
                   fontSize: 16,
@@ -83,26 +84,26 @@ class _OtpPageState extends State<OtpPage> {
               ),
               SizedBox(height: 40),
         
-              // OTP Form
+              // The form containing the OTP input field and continue button.
               Form(
                 key: formKey,
                 child: Column(
                   children: [
                     Pinput(
-                      // OTP validation: only valid if it matches [validPin]
+                      // Validates the entered OTP against the valid PIN.
                       validator: (value) {
                         return value == validPin ? null : "Invalid OTP";
                       },
-                      // Updates enteredPin and completeness status in real-time
+                      // Updates the state as the user types in the OTP.
                       onChanged: (pin) {
                         setState(() {
                           enteredPin = pin;
                           isComplete = pin.length == 6;
                         });
                       },
-                      // Length of OTP
+                      // The expected length of the OTP.
                       length: 6,
-                      // Default input theme
+                      // The default theme for the pinput field.
                       defaultPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -117,7 +118,7 @@ class _OtpPageState extends State<OtpPage> {
                         ),
                       ),
         
-                      // Theme when input is focused
+                      // The theme for the pinput field when it is focused.
                       focusedPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -132,7 +133,7 @@ class _OtpPageState extends State<OtpPage> {
                         ),
                       ),
         
-                      // Theme for submitted/validated input
+                      // The theme for the pinput field after the OTP has been submitted.
                       submittedPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -147,9 +148,9 @@ class _OtpPageState extends State<OtpPage> {
                         ),
                       ),
         
-                      // Once PIN is fully entered
+                      // Called when the user has entered the full OTP.
                       onCompleted: (pin) {
-                        print("Completed: $pin");
+                        print("Completed: \$pin");
                         setState(() {
                           enteredPin = pin;
                           isComplete = true;
@@ -159,22 +160,22 @@ class _OtpPageState extends State<OtpPage> {
         
                     SizedBox(height: 20),
         
-                    // Continue Button
+                    // The "Continue" button, which is enabled only when the OTP is complete.
                     SizedBox(
                       width: double.infinity,
                       child: GestureDetector(
                         onTap: isComplete
                             ? () {
                           if (formKey.currentState!.validate()) {
-                            // Valid OTP → show success modal
+                            // If the OTP is valid, show the success modal.
                             _showSuccessModal();
-                            print("Valid PIN: $enteredPin");
+                            print("Valid PIN: \$enteredPin");
                           } else {
-                            // Invalid OTP (validator handles error message)
+                            // If the OTP is invalid, the validator will show an error.
                             print("Invalid PIN");
                           }
                         }
-                            : null, // Disabled when OTP is incomplete
+                            : null, // The button is disabled if the OTP is not 6 digits.
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 15),
                           decoration: BoxDecoration(
@@ -202,7 +203,7 @@ class _OtpPageState extends State<OtpPage> {
         
               SizedBox(height: 10),
         
-              // Resend option
+              // The "Resend code" option.
               RichText(
                 text: TextSpan(
                   style: GoogleFonts.poppins(
