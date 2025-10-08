@@ -14,9 +14,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
+    //auto redirect to login page after 2 seconds
     Timer(Duration(seconds: 2), () {
-      context.go("/loginPage");
+      Navigator.pushNamed(context, '/loginPage');
     });
   }
   @override
