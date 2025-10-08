@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spar/routes/routes.dart';
 import 'package:flutter/services.dart';
-import 'package:spar/routes/routes2.0.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,18 +19,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'Dennis Pizza',
-      routerConfig: router,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) {
-        return MaterialApp(
-          title: 'Dennis Pizza',
-          onGenerateRoute: RoutesManager.generateRoute,
-          home: child,
-        );
-      },
+      initialRoute: '/splashscreen',
+      onGenerateRoute: RoutesManager.generateRoute,
     );
+
 
   }
 }

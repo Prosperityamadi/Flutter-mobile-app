@@ -15,6 +15,7 @@ class RoutesManager {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splashScreen:
+      case '/splashscreen':
         return MaterialPageRoute(builder: (context) => SplashScreen());
       case loginPage:
         return MaterialPageRoute(builder: (context) => LoginPage());
@@ -28,9 +29,15 @@ class RoutesManager {
       case homePage:
         return MaterialPageRoute(builder: (context) => MainNavigation());
       case location:
-        return MaterialPageRoute(builder: (context) => LocationPage(),);
+        return MaterialPageRoute(builder: (context) => LocationPage());
       default:
-        throw Exception('Invalid route: ${settings.name}');
+        return MaterialPageRoute(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: Text('No route defined for ${settings.name}'),
+            ),
+          ),
+        );
     }
   }
 }

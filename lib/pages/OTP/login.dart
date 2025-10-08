@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,7 +10,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   // Controller for phone number input
-  static TextEditingController phoneController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
 
   // Tracks whether the phone number is valid (10 digits)
   bool _isPhoneNumberValid = false;
@@ -184,7 +183,7 @@ class PhoneNumber extends StatelessWidget {
             // Phone number input field with Ghana country code prefix
             Container(
               decoration: BoxDecoration(
-                border: BoxBorder.all(width: 0.5, color: Color(0xFFE0E0E0)),
+                border: Border.all(width: 0.5, color: Color(0xFFE0E0E0)),
                 borderRadius: BorderRadius.circular(10),
               ),
               padding: EdgeInsets.only(left: 10, right: 10),
@@ -194,7 +193,7 @@ class PhoneNumber extends StatelessWidget {
                   //Ghana flag icon
                   Container(
                     child:
-                        Image(image: AssetImage("assets/images/GH_flag.png")),
+                    Image(image: AssetImage("assets/images/GH_flag.png")),
                   ),
                   SizedBox(
                     width: 4,
@@ -254,12 +253,16 @@ class PhoneNumber extends StatelessWidget {
                   ),
                   onPressed: _isPhoneNumberValid
                       ? () {
-                          // Navigate to OTP verification page with phone number
-                          final phoneNumber = phoneController.text;
-                          context.push('/otpPage/$phoneNumber');
-                          // A print statement to check the phone number
-                          print("Phone number: ${phoneController.text}");
-                        }
+                    // Navigate to OTP verification page with phone number
+                    final phoneNumber = phoneController.text;
+                    Navigator.pushNamed(
+                      context,
+                      '/otpPage',
+                      arguments: phoneNumber,
+                    );
+                    // A print statement to check the phone number
+                    print("Phone number: ${phoneController.text}");
+                  }
                       : null, // Disable button when phone number is invalid
                   child: Text(
                     "Get OTP",

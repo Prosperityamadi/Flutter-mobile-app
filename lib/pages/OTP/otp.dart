@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:spar/pages/OTP/modals.dart';
@@ -35,12 +34,15 @@ class _OtpPageState extends State<OtpPage> {
       title: "Success",
       autoCloseDuration: Duration(seconds: 2),
       onClose: () {
-        // Navigates to the home page after the modal is closed.
-        print("OTP verification successful, navigating to home page");
-        context.go("/home");
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/homePage',
+              (Route<dynamic> route) => false,
+        );
       },
     );
   }
+
 
   @override
   void initState() {
@@ -72,7 +74,7 @@ class _OtpPageState extends State<OtpPage> {
               ),
               // Displays the phone number with custom styling.
               Text(
-                "\${widget.phoneNumber}",
+                "${widget.phoneNumber}",
                 style: GoogleFonts.poppins(
                   fontStyle: FontStyle.normal,
                   fontSize: 16,
