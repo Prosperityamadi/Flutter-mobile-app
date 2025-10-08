@@ -81,7 +81,9 @@ class _SearchPageState extends State<SearchPage> {
             SizedBox(
               height: 15,
             ),
-            MyHorizontalIconContainer(),
+            MyHorizontalIconContainer(
+              onIconSelected: (label) {},
+            ),
             Expanded(
               child: ListView(
                 children: [
