@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:spar/others/foodcard/food_items.dart';
 import 'package:spar/others/foodcard/foodcard.dart';
+import 'package:spar/pages/Navigation/cart_page.dart';
 import 'package:spar/pages/Navigation/location_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String location = "Amasaman, Sonitra";
+  String? selectedIconLabel; // Tracks the currently selected icon
 
   // image list for auto scrollable images on homepage
   final List<String> imageList = [
@@ -82,6 +84,18 @@ class _HomePageState extends State<HomePage> {
       onOptionPressed: () {},
     ),
   ];
+
+  /// Toggles the selection of an icon.
+  /// If the selected icon is tapped again, it's deselected.
+  void _handleIconSelection(String label) {
+    setState(() {
+      if (selectedIconLabel == label) {
+        selectedIconLabel = null;
+      } else {
+        selectedIconLabel = label;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -253,14 +267,16 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       'Amasaman, Sonitra',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black
-                      ),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black),
                     ),
                   ],
                 ),
-                HugeIcon(icon: HugeIcons.strokeRoundedArrowDown01, color: Colors.black,)
+                HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowDown01,
+                  color: Colors.black,
+                )
               ],
             ),
           ),
@@ -268,7 +284,12 @@ class _HomePageState extends State<HomePage> {
         //shopping Cart
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            },
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedShoppingCart02,
               size: 30,
@@ -309,176 +330,159 @@ class _HomePageState extends State<HomePage> {
                 height: 15,
               ),
               //homepage horizontal icons
-              MyHorizontalIconContainer(),
+              MyHorizontalIconContainer(
+                selectedLabel: selectedIconLabel,
+                onIconSelected: _handleIconSelection,
+              ),
               SizedBox(
                 height: 15,
               ),
-              //Most popular and hot picks
-              Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Most Popular',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('See all',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 14, color: Color(0xFFC42348))),
-                        ],
-                      ),
-                    ),
-                    // Most popular items grid
-                    GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      physics: NeverScrollableScrollPhysics(),
-                      // Important for nesting in a ListView
-                      shrinkWrap: true,
-                      // Important for nesting in a ListView
-                      itemCount: mostPopularItems.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16, // Horizontal space
-                        mainAxisSpacing: 16, // Vertical space
-                        childAspectRatio:
-                            0.75, // Adjust this ratio to get the height you want
-                      ),
-                      itemBuilder: (BuildContext context, int index) {
-                        // Get the current item from your list
-                        final item = mostPopularItems[index];
-                        // Return the custom FoodCard widget
-                        return FoodCard(
-                          item: item,
-                          onAdd: () {
-                            print('${item.name} added to cart!');
-                          },
-                        );
-                      },
-                    ),
-                    SizedBox(height: 25),
-                    // Hot picks section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Hot Picks',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('See all',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 14, color: Color(0xFFC42348))),
-                        ],
-                      ),
-                    ),
-                    GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      // Important for nesting in a ListView
-                      itemCount: hotPicksItems.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio:
-                            0.75, // Adjust this ratio to get the height you want
-                      ),
-                      itemBuilder: (BuildContext context, int index) {
-                        // Get the current item from your list
-                        final item = hotPicksItems[index];
-                        // Return the custom FoodCard widget
-                        return FoodCard(
-                          item: item,
-                          onAdd: () {
-                            print('${item.name} added to cart!');
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              )
+              // Conditionally display content based on icon selection
+              if (selectedIconLabel == null)
+                _buildDefaultContent() // Show default content
+              else
+                _buildEmptyContent(), // Show the empty page
             ],
           )
         ],
       ),
     );
   }
-}
 
-class MyHorizontalIconContainer extends StatefulWidget {
-  const MyHorizontalIconContainer({super.key});
-
-  @override
-  State<MyHorizontalIconContainer> createState() => _MyHorizontalIconContainerState();
-}
-
-class _MyHorizontalIconContainerState extends State<MyHorizontalIconContainer> {
-  int selectedIndex = -1;
-
-  void _handleSelection(int index) {
-    setState(() {
-      if (selectedIndex == index) {
-        selectedIndex = -1;
-      } else {
-        selectedIndex = index;
-      }
-    });
+  /// This widget builds the default content (Most Popular & Hot Picks).
+  Widget _buildDefaultContent() {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Most Popular',
+                    style: GoogleFonts.poppins(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('See all',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, color: Color(0xFFC42348))),
+              ],
+            ),
+          ),
+          // Most popular items grid
+          GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: mostPopularItems.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              final item = mostPopularItems[index];
+              return FoodCard(
+                item: item,
+                onAdd: () {
+                  print('${item.name} added to cart!');
+                },
+              );
+            },
+          ),
+          SizedBox(height: 25),
+          // Hot picks section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Hot Picks',
+                    style: GoogleFonts.poppins(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('See all',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, color: Color(0xFFC42348))),
+              ],
+            ),
+          ),
+          GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: hotPicksItems.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              final item = hotPicksItems[index];
+              return FoodCard(
+                item: item,
+                onAdd: () {
+                  print('${item.name} added to cart!');
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
+
+  /// empty content widget
+  Widget _buildEmptyContent() {
+    return Container();
+  }
+}
+
+/// A widget that displays the horizontal list of icon categories.
+class MyHorizontalIconContainer extends StatelessWidget {
+  final String? selectedLabel; // The label of the currently selected icon
+  final Function(String) onIconSelected; // Callback when an icon is tapped
+
+  const MyHorizontalIconContainer({
+    super.key,
+    this.selectedLabel,
+    required this.onIconSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Data for the icons
+    final List<Map<String, dynamic>> iconData = [
+      {'icon': HugeIcons.strokeRoundedPizza02, 'label': 'Pizza'},
+      {'icon': HugeIcons.strokeRoundedRiceBowl01, 'label': 'Food'},
+      {'icon': HugeIcons.strokeRoundedIceCream01, 'label': 'Desserts'},
+      {'icon': HugeIcons.strokeRoundedMilkBottle, 'label': 'Drinks'},
+    ];
+
     return Container(
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            MyHorizontalIcons(
-              onPressed: () {
-                return _handleSelection(0);
-              },
-              icon: HugeIcons.strokeRoundedPizza02,
-              label: 'Pizza',
-              isSelected: selectedIndex == 0,            ),
-            MyHorizontalIcons(
-              onPressed: () {
-                return _handleSelection(1);
-              },
-              icon: HugeIcons.strokeRoundedRiceBowl01,
-              label: 'Food',
-              isSelected: selectedIndex == 1,
-            ),
-            MyHorizontalIcons(
-              onPressed: () {
-                return _handleSelection(2);
-              },
-              icon: HugeIcons.strokeRoundedIceCream01,
-              label: 'Desserts',
-              isSelected: selectedIndex == 2,
-            ),
-            MyHorizontalIcons(
-              onPressed: () {
-                return _handleSelection(3);
-              },
-              icon: HugeIcons.strokeRoundedMilkBottle,
-              label: 'Drinks',
-              isSelected: selectedIndex == 3,
-            ),
-          ],
+          children: iconData.map((data) {
+            final label = data['label'] as String;
+            return MyHorizontalIcons(
+              onPressed: () => onIconSelected(label),
+              icon: data['icon'],
+              label: label,
+              isSelected:
+                  selectedLabel == label, // Determine if the icon is selected
+            );
+          }).toList(),
         ),
       ),
     );
   }
 }
 
-// ✅ your MyHorizontalIcons class
+/// Represents a single pressable icon in the horizontal list.
 class MyHorizontalIcons extends StatelessWidget {
   final dynamic icon;
   final String label;
@@ -510,7 +514,7 @@ class MyHorizontalIcons extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontStyle: FontStyle.normal,
             fontSize: 12,
-            color: isSelected ? Color(0xFFC42348) :  Color(0xFF8195A6),
+            color: isSelected ? Color(0xFFC42348) : Color(0xFF8195A6),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
