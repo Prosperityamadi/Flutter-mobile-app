@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:spar/others/userdata.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -255,6 +256,8 @@ class PhoneNumber extends StatelessWidget {
                       ? () {
                     // Navigate to OTP verification page with phone number
                     final phoneNumber = phoneController.text;
+
+                    UserData.phoneNumber = phoneNumber;
                     Navigator.pushNamed(
                       context,
                       '/otpPage',
