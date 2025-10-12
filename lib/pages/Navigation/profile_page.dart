@@ -117,10 +117,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             height: 10,
           ),
+          //profile display and update display
           ListTile(
             leading: SizedBox(
               height: 50,
@@ -176,6 +178,82 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: Color(0xFFC42348),
                 size: 20,
               ),
+            ),
+          ),
+          Divider(
+            color: Color(0xFFEEF6FB),
+          ),
+          //payment method
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Payment',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Image(
+                          image: AssetImage('assets/images/cash.png'),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Cash',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(30),
+                                  topRight: Radius.circular(30),
+                                ),
+
+                              ),
+                              height: 250,
+                              width: double.infinity,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Change',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                          decoration: TextDecoration.underline,
+                          color: Color(0xFFC42348),
+                          decorationColor: Color(0xFFC42348),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
         ],
