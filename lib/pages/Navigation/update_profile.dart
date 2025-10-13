@@ -237,8 +237,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           content: Text(
                             'Please enter a username',
                             style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 15,
                               color: Color(0xFFC42348),
                             ),
                           ),
@@ -278,78 +278,104 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       builder: (BuildContext context) {
                         return Container(
                           decoration: BoxDecoration(
+                            color: Colors.white,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(30),
                               topRight: Radius.circular(30),
                             ),
-                            // color: Color(0xFFF9E9ED),
-                            // color: Color(0xFFA1B3C2),
                           ),
-                          height: 250,
+                          height: 300,
                           width: double.infinity,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.only(
+                                left: 20.0, right: 20, bottom: 20),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
-                                Text(
-                                  'Are you sure you want to delete your account?',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 17,
-                                    // color: Color(0xFFC42348),
+                                SizedBox(height: 20),
+                                // Handle bar
+                                Container(
+                                  width: 60,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                Text(
-                                  'this action cannot be undone',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 15,
-                                    // color: Color(0xFFC42348),
+                                SizedBox(height: 20),
+                                //delete account text
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                        color: Color(0xFFEEF6FB), width: 2),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                OverflowBar(
-                                  children: [
-                                    Container(
-                                      child: TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text(
-                                          'No',
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 15,
-                                            color: Colors.white
-                                          ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'Are you sure you want to delete your account?',
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 17,
+                                          // color: Color(0xFFC42348),
                                         ),
                                       ),
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFC42348),
-                                          borderRadius: BorderRadius.circular(30)
-                                        )
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          '/loginPage',
-                                              (Route<dynamic> route) => false,
-                                        );
-                                      },
-                                      child: Text(
-                                        'Yes',
+                                      Text(
+                                        'this action cannot be undone',
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.w400,
                                           fontSize: 15,
-                                          color: Color(0xFFC42348),
+                                          // color: Color(0xFFC42348),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      OverflowBar(
+                                        children: [
+                                          Container(
+                                            width: 100,
+                                            height: 50,
+                                            child: TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                'No',
+                                                style: GoogleFonts.poppins(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 15,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFC42348),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pushNamedAndRemoveUntil(
+                                                context,
+                                                '/loginPage',
+                                                (Route<dynamic> route) => false,
+                                              );
+                                            },
+                                            child: Text(
+                                              'Yes',
+                                              style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15,
+                                                color: Color(0xFFC42348),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
