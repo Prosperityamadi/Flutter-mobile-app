@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:spar/others/userdata.dart' as UserModel;
+import 'package:spar/pages/Navigation/main_navigation.dart';
+import 'package:spar/pages/OTP/login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,11 +17,33 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    //auto redirect to login page after 2 seconds
-    Timer(Duration(seconds: 2), () {
-      Navigator.pushNamed(context, '/loginPage');
+    _navigateToWrapper();
+  }
+
+  void _navigateToWrapper() {
+    Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        final user = Provider.of<UserModel.User?>(context, listen: false);
+
+        // Navigate based on user state and remove all previous routes
+        if (user != null) {
+          // User is logged in, go directly to home
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MainNavigation()),
+                (route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false,
+          );
+        }
+      }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
