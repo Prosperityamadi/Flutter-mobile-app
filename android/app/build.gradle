@@ -1,8 +1,9 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    // Apply google-services LAST
+    id "com.google.gms.google-services"
 }
 
 def appProperties = new Properties()
@@ -15,9 +16,9 @@ if (appPropertiesFile.exists()) {
 
 android {
     namespace = "com.techupstudio.spar"
-    compileSdk = 36 //flutter.compileSdkVersion
-    ndkVersion = "26.1.10909125"//flutter.ndkVersion
-    //25.2.9519653
+    compileSdk = 36
+    ndkVersion = "26.1.10909125"
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -28,14 +29,12 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.techupstudio.spar"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion = minSdkVersion = 21 //minSdkVersion
-        targetSdk = 35 //flutter.targetSdkVersion
+        minSdkVersion = 23
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled true  // Add this
     }
 
     signingConfigs {
@@ -80,6 +79,13 @@ flutter {
     source = "../.."
 }
 
-//dependencies {
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-//}
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-config'
+}
+
+// REMOVE THIS LINE - it's duplicate
+// apply plugin: 'com.google.gms.google-services'
