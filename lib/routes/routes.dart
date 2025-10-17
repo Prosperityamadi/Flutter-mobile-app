@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:spar/pages/Navigation/location_page.dart';
 import 'package:spar/pages/Navigation/main_navigation.dart';
-import 'package:spar/pages/splash_screen.dart';
+import 'package:spar/pages/Navigation/splash_screen.dart';
 import 'package:spar/pages/OTP/login.dart';
 import 'package:spar/pages/OTP/otp.dart';
+import 'package:spar/pages/wrapper.dart';
 
 class RoutesManager {
   static const String splashScreen = '/splashScreen';
@@ -17,6 +18,10 @@ class RoutesManager {
       case splashScreen:
       case '/splashscreen':
         return MaterialPageRoute(builder: (context) => SplashScreen());
+      case '/':
+        return MaterialPageRoute(
+          builder: (context) => const AuthWrapper(),
+        );
       case loginPage:
         return MaterialPageRoute(builder: (context) => LoginPage());
       case otpPage:
