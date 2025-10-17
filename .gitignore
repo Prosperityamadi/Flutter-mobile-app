@@ -27,3 +27,7 @@ ios/Flutter/ephemeral/
 # Others
 *.lock
 *.log
+
+#firebase keys
+firebase_options.dart
+
