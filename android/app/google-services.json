@@ -1,145 +1,28 @@
 {
   "project_info": {
-    "project_number": "243953238394",
-    "firebase_url": "https://techupstudio-my-church.firebaseio.com",
-    "project_id": "techupstudio-my-church",
-    "storage_bucket": "techupstudio-my-church.appspot.com"
+    "project_number": "1002130893277",
+    "project_id": "flutter-dennis-pizza",
+    "storage_bucket": "flutter-dennis-pizza.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:243953238394:android:aea4493d019100ce1716c3",
+        "mobilesdk_app_id": "1:1002130893277:android:5a63d82a0b60f293d42e34",
         "android_client_info": {
           "package_name": "com.techupstudio.spar"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "243953238394-upmbu29us5vl263k0iu2a1cf739v3ola.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.spar",
-            "certificate_hash": "55947da74b3fbf0092efc0e36680cb4abfe9f6d1"
-          }
-        },
-        {
-          "client_id": "243953238394-gta2cvgh7guisvg0utj00j1h832ri9t5.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCUsZNaXyDtMvDLi2wHSzX9vRFFplpLIEA"
-        },
-        {
-          "current_key": "AIzaSyAiGw-WnoFeZ4A2qabn1R-9PxU0gRK-PqI"
+          "current_key": "AIzaSyCkLTOn26ROCR0-6pwmGJaFmUcv_c5s4o8"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "243953238394-gta2cvgh7guisvg0utj00j1h832ri9t5.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "243953238394-7cva8gjmdtfopuskbfvqkht8ff3g70e9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.techupstudio.spar"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:243953238394:android:01c9df5757a10f6b1716c3",
-        "android_client_info": {
-          "package_name": "com.techupstudio.otc_chingy.spar"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "243953238394-j6ulerre3truie725lko9nb511a7h1ge.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "308ce3510af8d2c13929af351f56f10039176a6f"
-          }
-        },
-        {
-          "client_id": "243953238394-kceqr7avcso5mhjkr8ogulqtejsqhi7h.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "0d8ba6d7dd317dc7b0af26a23e9abef6a756dd3b"
-          }
-        },
-        {
-          "client_id": "243953238394-kn1s1b6krpqnc2818vmotj8kdee6gvab.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "ecf9e7d5dcb30185e5ae690af694321291186894"
-          }
-        },
-        {
-          "client_id": "243953238394-ogl2d22eonfqoqp90ijc12buaq6omm6k.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "55947da74b3fbf0092efc0e36680cb4abfe9f6d1"
-          }
-        },
-        {
-          "client_id": "243953238394-p2pi6h4peerrv8h651hb2q6em90hg177.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "73097511d30debd1281dd6cf6bb0c52f33eb36ef"
-          }
-        },
-        {
-          "client_id": "243953238394-pvbbjeek0etvo9ne81c9mlv3vpl6a4gr.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.techupstudio.otc_chingy.spar",
-            "certificate_hash": "95d256c1b1bd2ff27b64772371480e99cdc72294"
-          }
-        },
-        {
-          "client_id": "243953238394-gta2cvgh7guisvg0utj00j1h832ri9t5.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCUsZNaXyDtMvDLi2wHSzX9vRFFplpLIEA"
-        },
-        {
-          "current_key": "AIzaSyAiGw-WnoFeZ4A2qabn1R-9PxU0gRK-PqI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "243953238394-gta2cvgh7guisvg0utj00j1h832ri9t5.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "243953238394-7cva8gjmdtfopuskbfvqkht8ff3g70e9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.techupstudio.spar"
-              }
-            }
-          ]
-        }
-      },
-      "admob_app_id": "ca-app-pub-4630668657909143~5738993092"
     }
   ],
   "configuration_version": "1"
