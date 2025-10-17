@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:spar/others/userdata.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    // Dispose controller to free resources
     phoneController.dispose();
     super.dispose();
   }
@@ -151,15 +152,99 @@ class LoginHeading extends StatelessWidget {
 }
 
 /// Phone number input widget that handles user input validation and OTP request
-class PhoneNumber extends StatelessWidget {
+class PhoneNumber extends StatefulWidget {
   const PhoneNumber({
     super.key,
     required this.phoneController,
-    required bool isPhoneNumberValid,
-  }) : _isPhoneNumberValid = isPhoneNumberValid;
+    required this.isPhoneNumberValid,
+  });
 
   final TextEditingController phoneController;
-  final bool _isPhoneNumberValid;
+  final bool isPhoneNumberValid;
+
+  // fake OTP
+  static String fakeOtp = "123456";
+
+  @override
+  State<PhoneNumber> createState() => _PhoneNumberState();
+}
+
+class _PhoneNumberState extends State<PhoneNumber> {
+
+  bool _isLoading = false;
+
+  Future<void> _handleGetOTP() async {
+    if (!widget.isPhoneNumberValid || _isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+
+      final phoneNumber = widget.phoneController.text;
+
+      // Save the phone number to shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('phoneNumber', phoneNumber);
+
+      // Fake otp for testing
+      print("DEV-ONLY: The OTP for $phoneNumber is ${PhoneNumber.fakeOtp}");
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "DEV-ONLY: Your OTP is ${PhoneNumber.fakeOtp}",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                color: Color(0xFFC42348),
+              ),
+            ),
+            backgroundColor: Color(0xFFF9E9ED),
+            duration: Duration(seconds: 5),
+          ),
+        );
+
+        // Store the phone number in UserData for later use
+        UserData.phoneNumber = phoneNumber;
+
+        // NAVIGATION OTP page---
+        Navigator.pushNamed(
+          context,
+          '/otpPage',
+          arguments: phoneNumber,
+        );
+        // -----------------------------------------
+
+        print("Phone number: ${widget.phoneController.text}");
+      }
+    } catch (e) {
+      print("Error in _handleGetOTP: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "An error occurred. Please try again.",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,9 +263,7 @@ class PhoneNumber extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             // Phone number input field with Ghana country code prefix
             Container(
               decoration: BoxDecoration(
@@ -191,14 +274,13 @@ class PhoneNumber extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  //Ghana flag icon
+                  // Ghana flag icon
                   Container(
-                    child:
-                    Image(image: AssetImage("assets/images/GH_flag.png")),
+                    child: Image(
+                      image: AssetImage("assets/images/GH_flag.png"),
+                    ),
                   ),
-                  SizedBox(
-                    width: 4,
-                  ),
+                  SizedBox(width: 4),
                   // Ghana country code display
                   Container(
                     child: Text(
@@ -209,14 +291,11 @@ class PhoneNumber extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 8,
-                  ),
+                  SizedBox(width: 8),
                   // Phone number input field
                   Expanded(
                     child: TextField(
-                      //stores the number in the text field
-                      controller: phoneController,
+                      controller: widget.phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         hintText: "e.g. 0244123456",
@@ -233,9 +312,7 @@ class PhoneNumber extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
+            SizedBox(height: 30),
             // Get OTP button - enabled only when phone number is valid
             Container(
               child: SizedBox(
@@ -243,31 +320,26 @@ class PhoneNumber extends StatelessWidget {
                 width: 500,
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    // Dynamic background color based on validation state
-                    // Button active only if phone number is valid
-                    backgroundColor: _isPhoneNumberValid
-                        ? Color(0xFFC42348) // Active state - brand color
-                        : Color(0xFFEDBBC6), // Disabled state - lighter shade
+                    backgroundColor: widget.isPhoneNumberValid && !_isLoading
+                        ? Color(0xFFC42348)
+                        : Color(0xFFEDBBC6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  onPressed: _isPhoneNumberValid
-                      ? () {
-                    // Navigate to OTP verification page with phone number
-                    final phoneNumber = phoneController.text;
-
-                    UserData.phoneNumber = phoneNumber;
-                    Navigator.pushNamed(
-                      context,
-                      '/otpPage',
-                      arguments: phoneNumber,
-                    );
-                    // A print statement to check the phone number
-                    print("Phone number: ${phoneController.text}");
-                  }
-                      : null, // Disable button when phone number is invalid
-                  child: Text(
+                  onPressed: widget.isPhoneNumberValid && !_isLoading
+                      ? _handleGetOTP
+                      : null,
+                  child: _isLoading
+                      ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : Text(
                     "Get OTP",
                     style: GoogleFonts.poppins(
                       fontSize: 16,
@@ -278,27 +350,31 @@ class PhoneNumber extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             // Terms and conditions disclaimer
             Container(
               child: RichText(
                 text: TextSpan(
-                  style: GoogleFonts.poppins(color: Colors.black, fontSize: 12),
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 12,
+                  ),
                   children: [
                     TextSpan(text: "By clicking, I accept the "),
                     TextSpan(
-                        text: "term of service ",
-                        style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontWeight: FontWeight.bold)),
+                      text: "term of service ",
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     TextSpan(text: "and "),
                     TextSpan(
                       text: "privacy policies ",
                       style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontWeight: FontWeight.bold),
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
