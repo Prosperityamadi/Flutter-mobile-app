@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'package:spar/firebase_options.dart';
 import 'package:spar/routes/routes.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spar/services/auth.dart';
+import 'package:spar/others/userdata.dart' as UserModel;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Pre-initialize SharedPreferences to avoid lookup errors
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await SharedPreferences.getInstance();
 
-  // Lock orientation to portrait only
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,13 +31,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dennis Pizza',
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/splashscreen',
-      onGenerateRoute: RoutesManager.generateRoute,
+    return StreamProvider<UserModel.User?>.value(
+      value: AuthService().user,
+      initialData: null,
+      child: MaterialApp(
+        title: 'Dennis Pizza',
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/splashscreen',
+        onGenerateRoute: RoutesManager.generateRoute,
+      ),
     );
-
-
   }
 }
