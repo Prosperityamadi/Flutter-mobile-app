@@ -10,10 +10,12 @@ import 'package:spar/others/userdata.dart';
 
 class UpdateProfile extends StatefulWidget {
   final File? currentImage;
+  final String? phoneNumber;
 
   const UpdateProfile({
     super.key,
     this.currentImage,
+    this.phoneNumber,
   });
 
   @override
@@ -53,7 +55,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
       // Save to permanent directory
       final permanentImage =
-          await _saveImagePermanently(File(returnedImage.path));
+      await _saveImagePermanently(File(returnedImage.path));
 
       setState(() {
         _selectedImage = permanentImage;
@@ -127,10 +129,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         : null,
                     child: _selectedImage == null
                         ? HugeIcon(
-                            icon: HugeIcons.strokeRoundedUser02,
-                            size: 50,
-                            color: Color(0xFFC42348),
-                          )
+                      icon: HugeIcons.strokeRoundedUser02,
+                      size: 50,
+                      color: Color(0xFFC42348),
+                    )
                         : null,
                   ),
                   Positioned(
@@ -191,7 +193,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     //Ghana flag icon
                     Container(
                       child:
-                          Image(image: AssetImage("assets/images/GH_flag.png")),
+                      Image(image: AssetImage("assets/images/GH_flag.png")),
                     ),
                     SizedBox(
                       width: 4,
@@ -209,10 +211,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     SizedBox(
                       width: 8,
                     ),
-                    // Phone number input field
+                    // Phone number display - GET FROM WIDGET PARAMETER
                     Expanded(
                       child: Text(
-                        "${UserData.phoneNumber}",
+                        widget.phoneNumber ?? "No phone number",
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w400,
                           fontSize: 16,
@@ -352,7 +354,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                             decoration: BoxDecoration(
                                               color: Color(0xFFC42348),
                                               borderRadius:
-                                                  BorderRadius.circular(30),
+                                              BorderRadius.circular(30),
                                             ),
                                           ),
                                           TextButton(
@@ -360,7 +362,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                               Navigator.pushNamedAndRemoveUntil(
                                                 context,
                                                 '/loginPage',
-                                                (Route<dynamic> route) => false,
+                                                    (Route<dynamic> route) => false,
                                               );
                                             },
                                             child: Text(
