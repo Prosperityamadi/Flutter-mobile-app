@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:spar/others/userdata.dart';
+import 'package:spar/others/userdata.dart' as UserModel;
 import 'package:spar/pages/Navigation/update_profile.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spar/services/auth.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({
@@ -19,6 +21,7 @@ class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
   bool _isLoading = false;
   String _selectedPaymentMethod = 'Cash'; // Track selected payment method
+  final AuthService _auth = AuthService();
 
   @override
   void initState() {
@@ -148,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
               width: double.infinity,
               child: Padding(
                 padding:
-                    const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+                const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
@@ -186,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     vertical: 15, horizontal: 20),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
@@ -239,13 +242,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                     vertical: 15, horizontal: 20),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         HugeIcon(
                                           icon:
-                                              HugeIcons.strokeRoundedPayment01,
+                                          HugeIcons.strokeRoundedPayment01,
                                           color: Color(0xFFC42348),
                                           size: 24,
                                         ),
@@ -319,6 +322,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    // GET THE USER FROM PROVIDER
+    final user = Provider.of<UserModel.User?>(context);
+
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
@@ -345,24 +351,25 @@ class _ProfilePageState extends State<ProfilePage> {
               child: CircleAvatar(
                 backgroundColor: const Color(0xFFF9E9ED),
                 backgroundImage:
-                    _profileImage != null ? FileImage(_profileImage!) : null,
+                _profileImage != null ? FileImage(_profileImage!) : null,
                 child: _profileImage == null
                     ? HugeIcon(
-                        icon: HugeIcons.strokeRoundedUser02,
-                        color: Color(0xFFC42348),
-                        size: 30,
-                      )
+                  icon: HugeIcons.strokeRoundedUser02,
+                  color: Color(0xFFC42348),
+                  size: 30,
+                )
                     : null,
               ),
             ),
             title: Text(
-              UserData.userName ?? "",
+              UserModel.UserData.userName ?? "",
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
                 fontSize: 15,
               ),
             ),
-            subtitle: Text("${UserData.phoneNumber}"),
+            // USE THE PHONE NUMBER FROM PROVIDER USER OBJECT
+            subtitle: Text(user?.phoneNumber ?? "No phone number"),
             trailing: IconButton(
               onPressed: () async {
                 // Navigate and wait for result
@@ -371,6 +378,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   MaterialPageRoute(
                     builder: (context) => UpdateProfile(
                       currentImage: _profileImage,
+                      phoneNumber: user?.phoneNumber,
                     ),
                   ),
                 );
@@ -419,15 +427,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         _selectedPaymentMethod == 'Cash'
                             ? Image(
-                                image: AssetImage('assets/images/cash.png'),
-                                width: 24,
-                                height: 24,
-                              )
+                          image: AssetImage('assets/images/cash.png'),
+                          width: 24,
+                          height: 24,
+                        )
                             : HugeIcon(
-                                icon: HugeIcons.strokeRoundedPayment01,
-                                color: Color(0xFFC42348),
-                                size: 24,
-                              ),
+                          icon: HugeIcons.strokeRoundedPayment01,
+                          color: Color(0xFFC42348),
+                          size: 24,
+                        ),
                         SizedBox(width: 10),
                         Text(
                           _selectedPaymentMethod,
@@ -479,6 +487,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 MaterialPageRoute(
                   builder: (context) => UpdateProfile(
                     currentImage: _profileImage,
+                    phoneNumber: user?.phoneNumber,
                   ),
                 ),
               );
@@ -547,12 +556,19 @@ class _ProfilePageState extends State<ProfilePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/loginPage',
-                      (Route<dynamic> route) => false,
-                    );
+                  onPressed: () async {
+                    // First, sign the user out from Firebase
+                    await _auth.signOut();
+
+                    // THEN, navigate to the login page and remove all previous screens
+                    // The 'context.mounted' check is a best practice to avoid errors
+                    if (context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/loginPage',
+                            (Route<dynamic> route) => false, // This removes all routes behind it
+                      );
+                    }
                   },
                   child: Text(
                     'Logout',
