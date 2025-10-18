@@ -16,21 +16,24 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
-  // valid OTP for now (replace with backend validation later)
+  // Valid OTP for dev mode (replace with backend validation later)
   String validPin = "123456";
 
-  // Stores the OTP entered by the user.
+  // Stores the OTP entered by the user
   String enteredPin = "";
 
-  // Tracks whether the user has entered all 6 digits of the OTP.
+  // Tracks whether the user has entered all 6 digits of the OTP
   bool isComplete = false;
 
-  // Instance of AuthService for handling authentication.
+  // Loading state
+  bool _isLoading = false;
+
+  // Instance of AuthService for handling authentication
   final AuthService _auth = AuthService();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  //success modal
+  // Success modal
   void _showSuccessModal() {
     SuccessModal.show(
       context,
@@ -41,17 +44,98 @@ class _OtpPageState extends State<OtpPage> {
           Navigator.pushNamedAndRemoveUntil(
             context,
             '/homePage',
-            (route) => false,
+                (route) => false,
           );
         }
       },
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Future OTP setup logic can be added here if needed.
+  // Handle OTP verification and sign in
+  Future<void> _handleOTPVerification() async {
+    if (!isComplete || _isLoading) return;
+
+    if (!formKey.currentState!.validate()) {
+      print("Invalid PIN");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      print("Valid PIN: $enteredPin");
+      print("DEBUG: Checking if user exists with phone: ${widget.phoneNumber}");
+
+      // Check if user already exists with this phone number
+      String? existingUserId = await _auth.getUserIdByPhone(widget.phoneNumber);
+
+      dynamic result;
+
+      if (existingUserId != null) {
+        // Returning user - sign them in and load their data
+        print("DEBUG: Returning user found: $existingUserId");
+        result = await _auth.signInExistingUser(existingUserId);
+
+        if (result != null) {
+          // Load user data from Firestore
+          Map<String, dynamic>? userData = await _auth.getUserData(existingUserId);
+
+          if (userData != null) {
+            // Populate UserData with saved information
+            UserData.phoneNumber = userData['phoneNumber'];
+            UserData.userName = userData['name'];
+
+            print("DEBUG: Loaded user data - Name: ${userData['name']}");
+          }
+        }
+      } else {
+        // New user - create account and save to Firestore
+        print("DEBUG: New user, creating account");
+        result = await _auth.signInAnon(widget.phoneNumber);
+      }
+
+      print("DEBUG: Sign-in result: $result");
+
+      // Check if sign-in was successful
+      if (result != null && mounted) {
+        print("DEBUG: Sign-in successful, showing modal");
+
+        // Save to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('last_phone_number', widget.phoneNumber);
+
+        // Show success modal
+        _showSuccessModal();
+      } else {
+        throw Exception("Authentication failed");
+      }
+    } catch (e) {
+      print("ERROR in _handleOTPVerification: $e");
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Authentication failed. Please try again.",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -66,9 +150,9 @@ class _OtpPageState extends State<OtpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Displays instructions to the user.
+              // Instructions text
               Text(
-                "Enter the OTP sent to ",
+                "Enter the OTP",
                 style: GoogleFonts.poppins(
                   fontStyle: FontStyle.normal,
                   fontSize: 20,
@@ -76,7 +160,7 @@ class _OtpPageState extends State<OtpPage> {
                   color: Colors.black,
                 ),
               ),
-              // Displays the phone number with custom styling.
+              // Phone number display
               Text(
                 "${widget.phoneNumber}",
                 style: GoogleFonts.poppins(
@@ -88,28 +172,50 @@ class _OtpPageState extends State<OtpPage> {
                   decorationColor: Color(0xFFC42348),
                 ),
               ),
+              SizedBox(height: 20),
+
+              // Dev mode hint
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Color(0xFFFFB74D)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Color(0xFFFF9800), size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Dev Mode: Use 123456 as OTP",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Color(0xFFE65100),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 40),
 
-              // The form containing the OTP input field and continue button.
+              // Form with OTP input
               Form(
                 key: formKey,
                 child: Column(
                   children: [
                     Pinput(
-                      // Validates the entered OTP against the valid PIN.
                       validator: (value) {
                         return value == validPin ? null : "Invalid OTP";
                       },
-                      // Updates the state as the user types in the OTP.
                       onChanged: (pin) {
                         setState(() {
                           enteredPin = pin;
                           isComplete = pin.length == 6;
                         });
                       },
-                      // The expected length of the OTP.
                       length: 6,
-                      // The default theme for the pinput field.
                       defaultPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -123,8 +229,6 @@ class _OtpPageState extends State<OtpPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-
-                      // The theme for the pinput field when it is focused.
                       focusedPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -138,8 +242,6 @@ class _OtpPageState extends State<OtpPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-
-                      // The theme for the pinput field after the OTP has been submitted.
                       submittedPinTheme: PinTheme(
                         width: 56,
                         height: 56,
@@ -153,8 +255,6 @@ class _OtpPageState extends State<OtpPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-
-                      // Called when the user has entered the full OTP.
                       onCompleted: (pin) {
                         print("Completed: $pin");
                         setState(() {
@@ -163,73 +263,34 @@ class _OtpPageState extends State<OtpPage> {
                         });
                       },
                     ),
-
                     SizedBox(height: 20),
 
-                    // The "Continue" button, which is enabled only when the OTP is complete.
+                    // Continue button
                     SizedBox(
                       width: double.infinity,
                       child: GestureDetector(
-                        onTap: isComplete
-                            ? () async {
-                                if (formKey.currentState!.validate()) {
-                                  print("Valid PIN: $enteredPin");
-
-                                  // Save the phone number to SharedPreferences AND UserData
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setString(
-                                      'last_phone_number', widget.phoneNumber);
-
-                                  UserData.phoneNumber = widget.phoneNumber;
-                                  // Authenticate the user
-                                  dynamic result = await _auth.signInAnon();
-
-                                  print("DEBUG: Sign-in result: $result");
-
-                                  // Check if sign-in was successful
-                                  if (result != null && mounted) {
-                                    print(
-                                        "DEBUG: Sign-in successful, showing modal");
-                                    // SuccessModal
-                                    _showSuccessModal();
-                                  } else {
-                                    print("ERROR: Sign-in failed");
-                                    // Error message if authentication failed
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Authentication failed. Please try again.",
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 15,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                } else {
-                                  // If the OTP is invalid
-                                  print("Invalid PIN");
-                                }
-                              }
+                        onTap: isComplete && !_isLoading
+                            ? _handleOTPVerification
                             : null,
-                        // Button disabled if OTP is not complete.
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 15),
                           decoration: BoxDecoration(
-                            color: isComplete
+                            color: isComplete && !_isLoading
                                 ? Color(0xFFC42348)
                                 : Color(0xFFEDBBC6),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Center(
-                            child: Text(
+                            child: _isLoading
+                                ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : Text(
                               "Continue",
                               style: TextStyle(
                                 color: Colors.white,
@@ -244,10 +305,9 @@ class _OtpPageState extends State<OtpPage> {
                   ],
                 ),
               ),
-
               SizedBox(height: 10),
 
-              // The "Resend code" option.
+              // Resend code option
               RichText(
                 text: TextSpan(
                   style: GoogleFonts.poppins(
