@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:spar/others/userdata.dart';
+import 'package:spar/services/auth.dart';
 
 class UpdateProfile extends StatefulWidget {
   final File? currentImage;
@@ -27,17 +28,19 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController userNameController = TextEditingController();
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+  final AuthService _auth = AuthService();
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize with current image if available
+    // Initialize with current image and username
     _selectedImage = widget.currentImage;
+    userNameController.text = UserData.userName ?? '';
   }
 
   @override
   void dispose() {
-    // Dispose controllers to free resources
     userNameController.dispose();
     super.dispose();
   }
@@ -54,8 +57,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
       if (returnedImage == null) return;
 
       // Save to permanent directory
-      final permanentImage =
-      await _saveImagePermanently(File(returnedImage.path));
+      final permanentImage = await _saveImagePermanently(File(returnedImage.path));
 
       setState(() {
         _selectedImage = permanentImage;
@@ -89,6 +91,105 @@ class _UpdateProfileState extends State<UpdateProfile> {
     return savedImage;
   }
 
+  // Save profile updates to Firestore
+  Future<void> _saveProfile() async {
+    final newUserName = userNameController.text.trim();
+
+    // Validate username
+    if (newUserName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a username',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              color: Color(0xFFC42348),
+            ),
+          ),
+          backgroundColor: Color(0xFFF9E9ED),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final user = _auth.getCurrentUser();
+
+      if (user == null) {
+        throw Exception('No user logged in');
+      }
+
+      // For now, just save the local file path as profileImageUrl
+      // In Step 6, we'll upload to Firebase Storage and get a real URL
+      String? imagePath;
+      if (_selectedImage != null) {
+        imagePath = _selectedImage!.path;
+      }
+
+      // Update Firestore
+      bool success = await _auth.updateUserProfile(
+        uid: user.uid,
+        name: newUserName,
+        profileImageUrl: imagePath,
+      );
+
+      if (success) {
+        // Update local UserData
+        UserData.userName = newUserName;
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Profile updated successfully!',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                  color: Color(0xFFC42348),
+                ),
+              ),
+              backgroundColor: Color(0xFFF9E9ED),
+            ),
+          );
+
+          // Return the image to profile page
+          Navigator.pop(context, _selectedImage);
+        }
+      } else {
+        throw Exception('Failed to update profile');
+      }
+    } catch (e) {
+      print('ERROR saving profile: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to update profile. Please try again.',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,7 +197,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
         toolbarHeight: 65,
         leading: IconButton(
           onPressed: () {
-            // Return the selected image when going back
             Navigator.pop(context, _selectedImage);
           },
           icon: const HugeIcon(
@@ -190,15 +290,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    //Ghana flag icon
                     Container(
-                      child:
-                      Image(image: AssetImage("assets/images/GH_flag.png")),
+                      child: Image(
+                          image: AssetImage("assets/images/GH_flag.png")),
                     ),
-                    SizedBox(
-                      width: 4,
-                    ),
-                    // Ghana country code display
+                    SizedBox(width: 4),
                     Container(
                       child: Text(
                         "233",
@@ -208,10 +304,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    // Phone number display - GET FROM WIDGET PARAMETER
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         widget.phoneNumber ?? "No phone number",
@@ -229,47 +322,32 @@ class _UpdateProfileState extends State<UpdateProfile> {
                 height: 60,
                 width: 500,
                 child: TextButton(
-                  onPressed: () {
-                    final newUserName = userNameController.text;
-
-                    // Check if username is empty
-                    if (newUserName.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Please enter a username',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 15,
-                              color: Color(0xFFC42348),
-                            ),
-                          ),
-                          backgroundColor: Color(0xFFF9E9ED),
-                        ),
-                      );
-                      return;
-                    }
-
-                    // Save and navigate back
-                    UserData.userName = newUserName;
-                    Navigator.pop(context, _selectedImage);
-                  },
-                  child: Text(
+                  onPressed: _isSaving ? null : _saveProfile,
+                  style: TextButton.styleFrom(
+                    backgroundColor: _isSaving
+                        ? Color(0xFFEDBBC6)
+                        : Color(0xFFC42348),
+                  ),
+                  child: _isSaving
+                      ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : Text(
                     'Save',
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 17,
                         color: Colors.white),
                   ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Color(0xFFC42348),
-                  ),
                 ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
-              //delete account button
+              const SizedBox(height: 30),
+              // Delete account button
               SizedBox(
                 height: 60,
                 width: 500,
@@ -295,7 +373,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
                                 SizedBox(height: 20),
-                                // Handle bar
                                 Container(
                                   width: 60,
                                   height: 5,
@@ -305,7 +382,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                   ),
                                 ),
                                 SizedBox(height: 20),
-                                //delete account text
                                 Container(
                                   padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
@@ -320,7 +396,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 17,
-                                          // color: Color(0xFFC42348),
                                         ),
                                       ),
                                       Text(
@@ -328,17 +403,19 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.w400,
                                           fontSize: 15,
-                                          // color: Color(0xFFC42348),
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
+                                      SizedBox(height: 20),
                                       OverflowBar(
                                         children: [
                                           Container(
                                             width: 100,
                                             height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFC42348),
+                                              borderRadius:
+                                              BorderRadius.circular(30),
+                                            ),
                                             child: TextButton(
                                               onPressed: () {
                                                 Navigator.pop(context);
@@ -351,19 +428,18 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                                     color: Colors.white),
                                               ),
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFFC42348),
-                                              borderRadius:
-                                              BorderRadius.circular(30),
-                                            ),
                                           ),
                                           TextButton(
-                                            onPressed: () {
-                                              Navigator.pushNamedAndRemoveUntil(
-                                                context,
-                                                '/loginPage',
-                                                    (Route<dynamic> route) => false,
-                                              );
+                                            onPressed: () async {
+                                              // TODO: Add delete account from Firestore
+                                              await _auth.signOut();
+                                              if (context.mounted) {
+                                                Navigator.pushNamedAndRemoveUntil(
+                                                  context,
+                                                  '/loginPage',
+                                                      (Route<dynamic> route) => false,
+                                                );
+                                              }
                                             },
                                             child: Text(
                                               'Yes',
