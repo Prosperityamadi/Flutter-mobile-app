@@ -9,9 +9,7 @@ import 'package:spar/services/auth.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({
-    super.key,
-  });
+  ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -19,16 +17,15 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   File? _profileImage;
-  bool _isLoading = false;
-  String _selectedPaymentMethod = 'Cash'; // Track selected payment method
+  bool _isLoading = true;
+  String _selectedPaymentMethod = 'Cash';
   final AuthService _auth = AuthService();
 
   @override
   void initState() {
     super.initState();
-    //Load profile image and payment method
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadProfileImage();
+      _loadUserData();
       _loadPaymentMethod();
     });
   }
@@ -36,11 +33,61 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void didUpdateWidget(ProfilePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Reload when widget updates
-    _loadProfileImage();
+    _loadUserData();
   }
 
-  // Load saved payment method from shared preferences
+  // Load user data from Firestore
+  Future<void> _loadUserData() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final user = _auth.getCurrentUser();
+
+      if (user != null) {
+        // Get user data from Firestore
+        Map<String, dynamic>? userData = await _auth.getUserData(user.uid);
+
+        if (userData != null && mounted) {
+          // Load name
+          if (userData['name'] != null) {
+            UserModel.UserData.userName = userData['name'];
+          }
+
+          // Load profile image
+          if (userData['profileImageUrl'] != null) {
+            final imagePath = userData['profileImageUrl'] as String;
+            final file = File(imagePath);
+            if (await file.exists()) {
+              setState(() {
+                _profileImage = file;
+              });
+
+              // Save to SharedPreferences for quick access
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('profile_image_path', imagePath);
+            }
+          } else {
+            // Try loading from SharedPreferences as fallback
+            await _loadProfileImage();
+          }
+        }
+      }
+    } catch (e) {
+      print('ERROR loading user data: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Load payment method from shared preferences
   Future<void> _loadPaymentMethod() async {
     final prefs = await SharedPreferences.getInstance();
     final paymentMethod = prefs.getString('payment_method') ?? 'Cash';
@@ -57,18 +104,9 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setString('payment_method', method);
   }
 
-  // Load saved image path from shared preferences
+  // Load saved image path from shared preferences (fallback)
   Future<void> _loadProfileImage() async {
-    if (_isLoading) return; // Prevent multiple simultaneous loads
-
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
-      // Add a small delay to ensure Flutter is ready
-      await Future.delayed(Duration(milliseconds: 100));
-
       final prefs = await SharedPreferences.getInstance();
       final imagePath = prefs.getString('profile_image_path');
 
@@ -78,32 +116,14 @@ class _ProfilePageState extends State<ProfilePage> {
           if (mounted) {
             setState(() {
               _profileImage = file;
-              _isLoading = false;
             });
           }
         } else {
-          // Clean up invalid path
           await prefs.remove('profile_image_path');
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
         }
       }
     } catch (e) {
       debugPrint('Error loading profile image: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 
@@ -113,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setString('profile_image_path', image.path);
   }
 
-  // Delete old profile image to avoid clutter
+  // Delete old profile image
   Future<void> _deleteOldProfileImage() async {
     if (_profileImage != null && await _profileImage!.exists()) {
       try {
@@ -150,13 +170,11 @@ class _ProfilePageState extends State<ProfilePage> {
               height: 350,
               width: double.infinity,
               child: Padding(
-                padding:
-                const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
+                padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(height: 20),
-                    // Handle bar
                     Container(
                       width: 60,
                       height: 5,
@@ -166,8 +184,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    //payment method selection
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
@@ -177,7 +193,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         borderRadius: BorderRadius.circular(28),
                         child: Column(
                           children: [
-                            // Cash option
                             InkWell(
                               onTap: () {
                                 setModalState(() {
@@ -188,14 +203,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 15, horizontal: 20),
                                 child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         Image(
-                                          image: AssetImage(
-                                              'assets/images/cash.png'),
+                                          image: AssetImage('assets/images/cash.png'),
                                           width: 24,
                                           height: 24,
                                         ),
@@ -229,8 +242,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 endIndent: 15,
                                 height: 2,
                                 thickness: 2),
-
-                            // Online Payment option
                             InkWell(
                               onTap: () {
                                 setModalState(() {
@@ -241,14 +252,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 15, horizontal: 20),
                                 child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         HugeIcon(
-                                          icon:
-                                          HugeIcons.strokeRoundedPayment01,
+                                          icon: HugeIcons.strokeRoundedPayment01,
                                           color: Color(0xFFC42348),
                                           size: 24,
                                         ),
@@ -281,8 +290,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(height: 30),
-
-                    // Done button
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -322,7 +329,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    // GET THE USER FROM PROVIDER
     final user = Provider.of<UserModel.User?>(context);
 
     return Scaffold(
@@ -337,21 +343,21 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      body: Column(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(color: Color(0xFFC42348)))
+          : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 10,
-          ),
-          //profile display and update display
+          SizedBox(height: 10),
           ListTile(
             leading: SizedBox(
               height: 50,
               width: 50,
               child: CircleAvatar(
                 backgroundColor: const Color(0xFFF9E9ED),
-                backgroundImage:
-                _profileImage != null ? FileImage(_profileImage!) : null,
+                backgroundImage: _profileImage != null
+                    ? FileImage(_profileImage!)
+                    : null,
                 child: _profileImage == null
                     ? HugeIcon(
                   icon: HugeIcons.strokeRoundedUser02,
@@ -362,17 +368,15 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             title: Text(
-              UserModel.UserData.userName ?? "",
+              UserModel.UserData.userName ?? "No name",
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
                 fontSize: 15,
               ),
             ),
-            // USE THE PHONE NUMBER FROM PROVIDER USER OBJECT
             subtitle: Text(user?.phoneNumber ?? "No phone number"),
             trailing: IconButton(
               onPressed: () async {
-                // Navigate and wait for result
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -383,18 +387,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 );
 
-                // Update profile image if user selected one
                 if (result != null && result is File) {
-                  // Delete old image before saving new one
                   await _deleteOldProfileImage();
-
                   setState(() {
                     _profileImage = result;
                   });
-
-                  // Save the image path permanently
                   await _saveProfileImage(result);
                 }
+
+                // Reload data after returning from update
+                _loadUserData();
               },
               icon: HugeIcon(
                 icon: HugeIcons.strokeRoundedEdit04,
@@ -403,11 +405,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          Divider(
-            thickness: 3,
-            color: Color(0xFFEEF6FB),
-          ),
-          //payment method
+          Divider(thickness: 3, color: Color(0xFFEEF6FB)),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -464,11 +462,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Divider(
-            thickness: 3,
-            color: Color(0xFFEEF6FB),
-          ),
-          // Other section
+          Divider(thickness: 3, color: Color(0xFFEEF6FB)),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
@@ -479,7 +473,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          //Account setting
           OtherProfileOptions(
             onOptionPressed: () async {
               final result = await Navigator.push(
@@ -492,23 +485,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               );
 
-              // Update profile image if user selected one
               if (result != null && result is File) {
-                // Delete old image before saving new one
                 await _deleteOldProfileImage();
-
                 setState(() {
                   _profileImage = result;
                 });
-
-                // Save the image path permanently
                 await _saveProfileImage(result);
               }
+
+              _loadUserData();
             },
             icon: HugeIcons.strokeRoundedSettings01,
             text: 'Account Settings',
           ),
-          // Promotion Codes
           OtherProfileOptions(
             onOptionPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -528,28 +517,22 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: HugeIcons.strokeRoundedDiscount,
             text: 'Promotion Codes',
           ),
-          //Privacy
           OtherProfileOptions(
             onOptionPressed: () {},
             icon: HugeIcons.strokeRoundedSecurity,
             text: 'Privacy',
           ),
-          //About
           OtherProfileOptions(
             onOptionPressed: () {},
             icon: HugeIcons.strokeRoundedInformationCircle,
             text: 'About',
           ),
-          //Support
           OtherProfileOptions(
             onOptionPressed: () {},
             icon: HugeIcons.strokeRoundedCustomerSupport,
             text: 'Support',
           ),
-          SizedBox(
-            height: 70,
-          ),
-          //Logout
+          SizedBox(height: 70),
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: Row(
@@ -557,16 +540,12 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 TextButton(
                   onPressed: () async {
-                    // First, sign the user out from Firebase
                     await _auth.signOut();
-
-                    // THEN, navigate to the login page and remove all previous screens
-                    // The 'context.mounted' check is a best practice to avoid errors
                     if (context.mounted) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         '/loginPage',
-                            (Route<dynamic> route) => false, // This removes all routes behind it
+                            (Route<dynamic> route) => false,
                       );
                     }
                   },
@@ -596,7 +575,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-//Other profile options
 class OtherProfileOptions extends StatelessWidget {
   final VoidCallback onOptionPressed;
   final dynamic icon;
@@ -621,9 +599,7 @@ class OtherProfileOptions extends StatelessWidget {
             size: 24,
             color: Color(0xFFC42348),
           ),
-          SizedBox(
-            width: 10,
-          ),
+          SizedBox(width: 10),
           Text(
             text,
             style: GoogleFonts.poppins(
